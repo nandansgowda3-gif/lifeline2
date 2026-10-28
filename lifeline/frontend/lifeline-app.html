@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lifeline</title>
+<style>
+:root{--bg:#f6f8fa;--card:#fff;--tx:#0f1b2d;--mu:#5b6b7f;--bd:#dde3ea;--ac:#0b7a75;--ok:#15803d;--bad:#b91c1c;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1520;--card:#152233;--tx:#e8eef5;--mu:#93a3b8;--bd:#25364b;--ac:#2dd4bf;--ok:#4ade80;--bad:#f87171}}
+*{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:600px;margin:auto;padding:32px 16px;text-align:center}
+h1{margin:0;font-size:32px}h1 span{color:var(--ac)}p.s{color:var(--mu);margin:6px 0 24px}
+#btn{width:180px;height:180px;border-radius:50%;border:0;background:var(--bad);color:#fff;font:700 20px system-ui,sans-serif;cursor:pointer;box-shadow:0 10px 30px rgba(185,28,28,.35)}#btn:disabled{opacity:.6}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;margin-bottom:8px;text-align:left}
+.row small{display:block;color:var(--mu)}.ok{color:var(--ok)}.bad{color:var(--bad)}.t{font-weight:600;white-space:nowrap}
+.msg{color:var(--mu);margin:12px 0}.sum{margin-top:12px;padding:14px;border-radius:12px;border:1px solid var(--ac);font-weight:600}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-top:28px;text-align:left}
+.card h2{margin:0 0 8px;font-size:17px}
+select,input{padding:8px;border-radius:8px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font:inherit;min-width:0}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse}td{padding:4px 3px}td input{width:100%}th{font-size:12px;color:var(--mu);text-align:left;padding:3px}
+.ov td,.ov th{padding:6px 5px;font-size:13px;border-bottom:1px solid var(--bd);vertical-align:top}.ov td{white-space:normal}.kpi{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.kpi div{flex:1;min-width:110px;background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:8px 10px}.kpi b{display:block;font-size:20px}.kpi small{color:var(--mu)}.pg{display:block;border:1px solid var(--bd);border-radius:10px;padding:8px 10px;margin-bottom:8px}.pg summary{cursor:pointer}.tag{display:inline-block;font-size:12px;border:1px solid var(--bd);border-radius:20px;padding:0 8px;color:var(--mu)}
+.b{border:1px solid var(--ac);background:transparent;color:var(--ac);border-radius:8px;padding:8px 12px;font:inherit;cursor:pointer;margin:8px 6px 0 0}
+
+/* Modern Lifeline dashboard refresh — visual styles only; application logic unchanged */
+:root{
+ --bg:#f3f7fb;--card:#ffffff;--tx:#14243a;--mu:#66768c;--bd:#e1e9f2;
+ --ac:#087f8c;--ok:#15803d;--bad:#c2414b;
+ color-scheme:light;
+}
+@media(prefers-color-scheme:dark){
+ :root:not([data-theme="light"]){--bg:#0b1220;--card:#121d2e;--tx:#edf4fc;--mu:#a0aec0;--bd:#26364b;--ac:#4fd1c5;--ok:#4ade80;--bad:#fb7185;color-scheme:dark}
+}
+html{scroll-behavior:smooth}
+body{
+ background:radial-gradient(ellipse at top left,rgba(8,127,140,.08),transparent 38%),var(--bg);
+ color:var(--tx);font:15px/1.6 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+main{max-width:1180px;margin:0 auto;padding:26px clamp(14px,3vw,34px) 56px;text-align:left}
+#login{max-width:430px!important;padding:9vh 18px 40px!important}
+#login h1,main h1{font-size:clamp(30px,4vw,42px);letter-spacing:-1.4px;line-height:1.15}
+h1 span{color:var(--ac)}
+p.s{color:var(--mu);font-size:16px;margin:8px 0 18px}
+main>p.msg{background:linear-gradient(120deg,rgba(8,127,140,.09),rgba(8,127,140,.025));border:1px solid rgba(8,127,140,.16);border-radius:14px;padding:14px 16px;color:var(--mu)}
+.card{
+ background:var(--card);border:1px solid var(--bd);border-radius:18px;
+ padding:clamp(16px,2vw,24px);margin-top:18px;
+ box-shadow:0 8px 24px rgba(22,45,70,.045);text-align:left;
+}
+.card h2{font-size:18px;letter-spacing:-.25px;margin:0 0 14px;display:flex;align-items:center;gap:9px}
+.card h2:before{content:"";display:inline-block;width:4px;height:21px;border-radius:4px;background:var(--ac);flex:0 0 4px}
+#app>div:first-child{position:sticky;top:10px;z-index:5;display:flex;justify-content:flex-end;margin-bottom:10px}
+.row{border:1px solid var(--bd);border-radius:13px;padding:13px 15px;margin-bottom:9px;box-shadow:0 2px 8px rgba(22,45,70,.025)}
+.row small{font-size:12px;line-height:1.5;margin-top:2px}
+.kpi{gap:12px;margin:12px 0}
+.kpi div{background:linear-gradient(145deg,var(--bg),var(--card));border:1px solid var(--bd);border-radius:14px;padding:14px;min-width:135px}
+.kpi b{font-size:25px;letter-spacing:-.6px}
+.kpi small{font-size:12px}
+select,input{border:1px solid var(--bd);border-radius:10px;padding:10px 12px;background:var(--card);transition:border-color .18s,box-shadow .18s}
+select:focus,input:focus{outline:none;border-color:var(--ac);box-shadow:0 0 0 3px rgba(8,127,140,.13)}
+input::placeholder{color:var(--mu);opacity:.8}
+.b{border:1px solid var(--ac);background:var(--ac);color:#fff;border-radius:10px;padding:10px 15px;font-weight:650;font-size:14px;box-shadow:0 3px 8px rgba(8,127,140,.12);transition:transform .15s,filter .15s}
+.b:hover{filter:brightness(.96);transform:translateY(-1px)}
+.b:active{transform:translateY(0)}
+#lo{background:transparent;color:var(--ac);box-shadow:none}
+#rst{background:transparent;color:var(--bad);border-color:var(--bad);box-shadow:none}
+.tw{border:1px solid var(--bd);border-radius:12px;overflow:auto}
+table{background:var(--card)}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;padding:10px 9px!important}
+td{padding:7px!important}
+.ov td,.ov th{padding:10px 9px!important}
+.ov tr:hover{background:rgba(8,127,140,.035)}
+.tag{padding:3px 9px;font-weight:600}
+.msg{color:var(--mu)}
+.sum{border-radius:14px;background:rgba(8,127,140,.06);border-color:rgba(8,127,140,.25);padding:18px}
+#btn{width:154px;height:154px;font-size:17px;box-shadow:0 10px 28px rgba(194,65,75,.22);border:6px solid rgba(255,255,255,.2);transition:transform .18s,box-shadow .18s}
+#btn:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(194,65,75,.28)}
+.pg{border-radius:12px;padding:12px 14px}
+@media(min-width:900px){
+ main> .card:first-of-type{margin-top:22px}
+}
+@media(max-width:640px){
+ main{padding:18px 12px 36px}
+ .card{border-radius:15px;padding:15px;margin-top:14px}
+ .kpi div{min-width:calc(50% - 6px)}
+ .b{padding:9px 11px}
+ #login{padding-top:48px!important}
+}
+
+</style></head><body>
+<div id="login" style="max-width:380px;margin:auto;padding:64px 16px;text-align:center"><h1>Life<span>line</span></h1><p class="s">Sign in to continue</p>
+<div class="card" style="text-align:left;margin-top:0"><label style="color:var(--mu);font-size:14px">Username</label><input id="lu" autocomplete="username" style="width:100%;margin-bottom:10px"><label style="color:var(--mu);font-size:14px">Password</label><input id="lp" type="password" autocomplete="current-password" style="width:100%"><button class="b" id="li" style="width:100%;margin:14px 0 0">Sign in</button><p id="le" class="bad" style="margin:8px 0 0;min-height:22px"></p></div>
+<p class="msg">Demo login: <b>admin</b> / <b>Lifeline@123</b></p></div>
+<main id="app" style="display:none"><div style="text-align:right"><button class="b" id="lo" style="margin:0">Log out</button></div>
+<h1>Life<span>line</span></h1>
+<p class="s">Keeping the hospital running when the server room doesn’t.</p>
+
+
+<p class="msg">Resilience workspace · capture changes offline, protect backups, and rehearse recovery. Demo data only.</p>
+<div class="card" style="margin-top:12px"><h2>Hospital operations overview</h2>
+<div class="kpi" id="ovk"></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin:6px 0"><input id="ovq" placeholder="Search name, detail or status" style="flex:1;min-width:170px"><select id="ovm"><option value="p">By patient</option><option value="r">All records</option><option value="l">Change log</option><option value="d">Stored days</option></select></div>
+<div id="ovb"></div></div>
+<div class="card"><h2>Offline entry & synchronisation</h2>
+<label style="color:var(--mu);font-size:14px">What are you entering?</label><select id="es" style="margin:4px 0 10px"></select><label style="color:var(--mu);font-size:14px;display:block">Date of entry (today or an earlier day)</label><input type="date" id="ed" style="margin:4px 0 10px;width:100%">
+<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px"><b id="st"></b><button class="b" id="tg" style="margin:0">Take server down</button><input id="url" placeholder="Real server URL (optional)" style="flex:1;min-width:190px"></div>
+<label for="priority" style="color:var(--mu);font-size:14px;display:block">Backup priority (used when server is down)</label>
+<select id="priority" style="margin:4px 0 10px;width:100%">
+<option value="1">1 · Emergency — critical patients and essential work</option>
+<option value="2">2 · Moderate — important reports and time-sensitive updates</option>
+<option value="3" selected>3 · General — pharmacy, lab and general information</option>
+<option value="4">4 · Discharged patients — upload after other categories</option>
+</select>
+<div class="tw"><table><tr><th id="h1">Patient name</th><th id="h2">Details</th><th id="h3">Status</th></tr><tr><td><input id="in1"></td><td><input id="in2"></td><td><input id="in3"></td></tr></table></div>
+<label for="entryFile" style="color:var(--mu);font-size:14px;display:block;margin-top:10px">Attach scan, image, bill or document to this entry (optional)</label><input id="entryFile" type="file" accept="image/*,.pdf,.dcm,.doc,.docx,.xls,.xlsx,.txt,.csv" style="width:100%;margin:6px 0 10px">
+<button class="b" id="sv">Save entry</button><button class="b" id="sa">Back up all hospital data to server</button>
+<p class="msg" id="qs" style="margin-bottom:6px"></p><div id="ql"></div></div>
+<div class="card" id="billingCard"><h2>Patient billing & complete report</h2><p class="msg">Add simple charges, enter payments received, and the final bill and remaining balance are calculated automatically. Demo use only.</p>
+<label for="billPatient" style="color:var(--mu);font-size:14px;display:block">Patient name</label><input id="billPatient" list="patientNameOptions" placeholder="Type all or part of a patient name" style="width:100%;margin:5px 0 4px"><datalist id="patientNameOptions"></datalist><p class="msg" id="patientMatches" style="margin:0 0 10px">Type a patient name to find matching records.</p>
+<div style="display:flex;gap:8px;flex-wrap:wrap"><input id="billDesc" placeholder="What is the charge? (e.g. Room, medicine)" style="flex:2;min-width:190px"><input id="billAmt" type="number" step="0.01" min="0" placeholder="Amount (₹)" style="flex:1;min-width:110px"><button class="b" id="billAdd" style="margin:0">Add charge</button></div>
+<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px"><label for="billPaid">Payments received (₹)</label><input id="billPaid" type="number" min="0" step="0.01" value="0" style="width:140px"><button class="b" id="billRefresh" style="margin:0">Load patient</button></div>
+<div id="billRows" class="tw" style="margin-top:10px"></div><div id="billTotals" class="kpi"></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="b" id="billFinal">Download final bill</button><button class="b" id="patientDownload">Download all patient information</button><button class="b" id="patientPrint">Print patient report & bill</button></div><p class="msg" id="billMsg"></p></div>
+<div class="card"><h2>Historical records</h2><p class="msg" style="margin-top:0;font-size:14px">Every day's data is kept. Pick a day to see what was recorded. To add data for a past day, choose that date in the entry form above.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><select id="hd"></select><select id="hs"></select></div><div class="tw" style="margin-top:8px"><table id="ht"></table></div><button class="b" id="hb">Back up all old days to server</button></div>
+<div class="card"><h2>Files, images & bills</h2><p class="msg" style="margin-top:0;font-size:14px">Attach bills, scans, images, PDFs or other documents. Download or print any saved file. Files are stored in this browser on this device. Original file size is preserved for downloads; large files depend on available browser/device storage and are not automatically uploaded to the server.</p><label for="filePick" style="color:var(--mu);font-size:14px;display:block">Choose files</label><input id="filePick" type="file" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.csv" style="width:100%;margin:6px 0 10px"><div id="fileList"></div></div>
+<div class="card"><h2>Server backup inventory</h2><p class="msg" style="margin-top:0;font-size:14px">Everything the server holds, with the time it was first stored. Re-uploads never change that time. Tap a row to see the data.</p><button class="b" id="srvb" style="margin:0 0 8px">Load from server</button><div id="srv"></div></div>
+<div class="card"><h2>Recovery test data</h2>
+<select id="sys"></select>
+<div class="tw"><table id="tb"></table></div>
+<button class="b" id="add">+ Add row</button><button class="b" id="rst">Reset to examples</button>
+<div style="margin-top:12px"><label style="color:var(--mu);font-size:14px">Minutes of new activity written after the last backup (this is the data at risk)</label><br><input type="number" id="mins" value="2" min="0" style="width:110px"></div>
+<p class="msg" style="font-size:13px;margin-bottom:0">Your changes are saved on this device and used in the next disaster. Use fictional patient names only, never real patients.</p></div>
+</main>
+<script>
+const SYS=[['Pharmacy',1,5],['Lab',1,5],['Patient records',1,5],['Radiology images',2,60],['Billing',3,240],['HR and file shares',4,1440]];
+const EX={'Pharmacy':[['Paracetamol 500 mg','Ward 3 stock','120'],['Insulin vial','Cold store','40'],['Amoxicillin 250 mg','Main store','75'],['Saline 500 ml','ICU','200']],
+'Lab':[['Asha R.','Blood count','Normal'],['Ravi K.','Glucose','High'],['Meena S.','Urine test','Normal'],['John D.','Culture','Pending']],
+'Patient records':[['Asha R.','Fever, admitted Ward 3','Day 2'],['Ravi K.','Diabetes follow-up','OPD'],['Meena S.','Fracture, surgery booked','Day 1'],['John D.','Asthma, nebulised','Day 3']],
+'Radiology images':[['Asha R.','Chest X-ray','2 MB'],['Meena S.','CT head','180 MB'],['Ravi K.','Ultrasound','40 MB']],
+'Billing':[['Asha R.','INV-2001','₹4,200'],['Ravi K.','INV-2002','₹1,850'],['Meena S.','INV-2003','₹36,000']],
+'HR and file shares':[['Duty roster Oct','Nursing','roster.xlsx'],['Policy: infection control','Admin','policy.pdf'],['Leave records','HR','leave.xlsx']]};
+const HD={'Pharmacy':['Item','Detail','Stock'],'Lab':['Patient name','Test','Result'],'Patient records':['Patient name','Details','Status'],'Radiology images':['Patient name','Scan','Size'],'Billing':['Patient name','Invoice','Amount'],'HR and file shares':['Item','Department','File']};
+const clone=o=>JSON.parse(JSON.stringify(o));const PRIORITY={1:'Emergency',2:'Moderate',3:'General',4:'Discharged patients'};const priorityLabel=p=>PRIORITY[Number(p)||3]||'General';let D;
+try{D=JSON.parse(localStorage.getItem('lifeline-data-v2'))}catch(e){}if(!D)D=clone(EX);
+const save=all=>{try{localStorage.setItem('lifeline-data-v2',JSON.stringify(D))}catch(e){}if(typeof markDirty==='function')markDirty(all===true)};
+const $=i=>document.getElementById(i),H=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
+$('sys').innerHTML=SYS.map(s=>`<option>${s[0]}</option>`).join('');
+function draw(){const k=$('sys').value;$('tb').innerHTML='<tr>'+HD[k].map(h=>`<th>${h}</th>`).join('')+'<th></th></tr>'+D[k].map((r,i)=>'<tr>'+r.map((v,j)=>`<td><input value="${v.replace(/"/g,'&quot;')}" data-i="${i}" data-j="${j}"></td>`).join('')+`<td><button class="b" style="margin:0;padding:6px 9px" data-d="${i}">✕</button></td></tr>`).join('')}
+$('sys').onchange=draw;draw();
+$('tb').oninput=e=>{const d=e.target.dataset;if(d.i!==undefined){D[$('sys').value][d.i][d.j]=e.target.value;save();touch($('sys').value,+d.i)}};
+$('tb').onclick=e=>{const d=e.target.dataset.d;if(d!==undefined){gone($('sys').value,+d);D[$('sys').value].splice(d,1);save();draw()}};
+$('add').onclick=()=>{D[$('sys').value].push(['','','']);born($('sys').value);save();draw()};
+$('rst').onclick=()=>{D=clone(EX);resetMeta();save(true);draw()};
+const zip=async(u,c)=>new Uint8Array(await new Response(new Blob([u]).stream().pipeThrough(c?new CompressionStream('gzip'):new DecompressionStream('gzip'))).arrayBuffer());
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+async function run(){
+ const btn=$('btn'),out=$('out'),note=$('note');btn.disabled=true;out.innerHTML='';
+ const mins=+$('mins').value||0,key=await crypto.subtle.generateKey({name:'AES-GCM',length:256},true,['encrypt','decrypt']),bk=[],orig=[];
+ note.className='msg';note.textContent='Backing up every system (encrypted, two copies)…';
+ for(const [n] of SYS){const rows=clone(D[n]);orig.push(JSON.stringify(rows));
+  const gz=await zip(new TextEncoder().encode(orig[orig.length-1]),true),iv=crypto.getRandomValues(new Uint8Array(12)),ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,gz)),hash=H(await crypto.subtle.digest('SHA-256',ct));
+  bk.push([{c:'local',ct:ct.slice(),iv,hash},{c:'offsite',ct:ct.slice(),iv,hash}]);}
+ await wait(500);note.className='msg bad';note.textContent='DISASTER: all systems down';
+ bk[1][0].ct[5]^=255;
+ SYS.forEach((s,i)=>out.insertAdjacentHTML('beforeend',`<div class="row" id="r${i}"><div>${s[0]}<small>Tier ${s[1]}</small></div><div class="t bad">DOWN</div></div>`));
+ await wait(1200);note.className='msg';note.textContent='Recovering in priority order…';
+ const T0=performance.now();let all=true;
+ for(let i=0;i<SYS.length;i++){const t0=performance.now();let used='',fell=false,txt=null;
+  for(const b of bk[i]){if(H(await crypto.subtle.digest('SHA-256',b.ct))!==b.hash){fell=true;continue}
+   txt=new TextDecoder().decode(await zip(new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:b.iv},key,b.ct)),false));used=b.c;break}
+  const ms=Math.max(Math.round(performance.now()-t0),1),good=txt===orig[i],ok=good&&mins<=SYS[i][2];if(!ok)all=false;
+  const rr=txt?JSON.parse(txt):[],n=rr.length,nm=HD[SYS[i][0]][0]==='Patient name'?' (patients: '+rr.map(r=>r[0]).filter(Boolean).join(', ')+')':'';
+  $('r'+i).innerHTML=`<div>${SYS[i][0]}<small>${good?n+' records restored'+nm+', matched from '+used+' copy'+(fell?' (local copy corrupt, caught by checksum)':'')+' · data lost '+mins+' min (target '+SYS[i][2]+')':'failed'}</small></div><div class="t ${ok?'ok':'bad'}">${ok?'✓ '+ms+' ms':'MISSED'}</div>`;await wait(500)}
+ const total=Math.round(performance.now()-T0);
+ out.insertAdjacentHTML('beforeend',`<div class="sum ${all?'ok':'bad'}">${all?'All systems recovered with your data intact':'Some targets missed'}<br><small style="font-weight:400;color:var(--mu)">Measured in this browser: ${total} ms</small></div>`);
+ note.className='msg';note.textContent='Tap again to run another disaster.';btn.disabled=false}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let on=true,Q=[],SV=[],FT={};
+try{FT=JSON.parse(localStorage.getItem('lifeline-firsttimes'))||{}}catch(e){}
+// First-saved time of an item: set once, never changed (even when the item is edited and uploaded again)
+const first=id=>{if(!FT[id]){FT[id]=new Date().toISOString();try{localStorage.setItem('lifeline-firsttimes',JSON.stringify(FT))}catch(e){}}return FT[id]};
+const fmt=t=>t?new Date(t).toLocaleString():'';
+try{Q=JSON.parse(localStorage.getItem('lifeline-queue'))||[];SV=JSON.parse(localStorage.getItem('lifeline-server'))||[]}catch(e){}
+const persist=()=>{try{localStorage.setItem('lifeline-queue',JSON.stringify(Q));localStorage.setItem('lifeline-server',JSON.stringify(SV.slice(0,60)))}catch(e){}};
+try{$('url').value=localStorage.getItem('lifeline-url')||''}catch(e){}
+const base=()=>$('url').value.trim().replace(/\/$/,'');
+async function up(){const u=base();if(!u)return on;try{return (await fetch(u+'/health',{cache:'no-store'})).ok}catch(e){return false}}
+async function send(e){const u=base();if(!u)return 'ok';try{const r=await fetch(u+'/records',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(e)});if(r.ok){let m={};try{m=await r.json()}catch(z){}e._m=m;return 'ok'}return r.status>=400&&r.status<500?'drop':'retry'}catch(x){return 'retry'}}
+let busy=false,wasUp=false,DS={},DSU=null;
+const dsLoad=()=>{if(DSU===base())return;DSU=base();try{DS=JSON.parse(localStorage.getItem('lifeline-synced:'+DSU))||{}}catch(e){DS={}}};
+const dsSave=()=>{try{localStorage.setItem('lifeline-synced:'+DSU,JSON.stringify(DS))}catch(e){}};
+const unsentDays=()=>{dsLoad();return Object.keys(HI).filter(d=>DS[d]!==JSON.stringify(HI[d]))};
+function autoQueue(){unsentDays().forEach(d=>{const s=JSON.stringify(HI[d]);if(!Q.some(e=>e.id==='hist-'+d&&JSON.stringify(e.data)===s))queueHist(d)});persist()}
+async function pull(){const u=base();if(!u)return;try{const r=await fetch(u+'/records',{cache:'no-store'});if(!r.ok)return;let n=0;
+ for(const e of await r.json()){if(e.kind!=='hist'||!/^\d{4}-\d{2}-\d{2}$/.test(e.date)||!e.data)continue;
+  const mine=HI[e.date];if(mine&&JSON.stringify(mine)!==SEED[e.date])continue;
+  HI[e.date]=e.data;if(e.firstSavedAt){FT['hist-'+e.date]=e.firstSavedAt;try{localStorage.setItem('lifeline-firsttimes',JSON.stringify(FT))}catch(z){}}DS[e.date]=JSON.stringify(e.data);delete SEED[e.date];Q=Q.filter(x=>x.id!=='hist-'+e.date);n++}
+ if(n){hSave();dsSave();seedSave();persist();renderHist()}}catch(x){}}
+async function sync(){if(busy)return;busy=true;try{dsLoad();const ok=await up();$('st').className=ok?'ok':'bad';$('st').textContent=ok?'Server: ONLINE':'Server: DOWN';
+ if(ok&&!wasUp&&base())await pull();
+ autoQueue();
+ if(ok){while(Q.length){Q.sort((a,b)=>(Number(a.priority)||3)-(Number(b.priority)||3));const e=Q[0],r=await send(e);if(r==='retry')break;
+   Q=Q.filter(x=>x!==e);
+   if(r==='ok'){if(e.kind==='hist'){DS[e.date]=JSON.stringify(e.data);dsSave()}SV=SV.filter(x=>x.id!==e.id);{const m=e._m||{};delete e._m;SV.unshift({...e,stored:m.firstSavedAt||e.createdAt,updated:m.updatedAt})}}
+   persist()}}
+ wasUp=ok}finally{busy=false;render()}}
+const setH=(el,h)=>{if(el._h===h)return;const o=[...el.querySelectorAll('details[open]')].map(d=>d.dataset.k);el.innerHTML=h;el._h=h;o.forEach(k=>{const d=[...el.querySelectorAll('details')].find(x=>x.dataset.k===k);if(d)d.open=true})};
+const tbl=(k,rows)=>'<table><tr>'+HD[k].map(h=>`<th>${esc(h)}</th>`).join('')+'</tr>'+(rows.length?rows.map(r=>'<tr>'+r.map(v=>`<td>${esc(v)}</td>`).join('')+'</tr>').join(''):'<tr><td colspan="3">No records</td></tr>')+'</table>';
+function content(e){if(e.kind==='hist'&&e.data)return Object.keys(e.data).map(k=>`<b>${esc(k)}</b>`+tbl(k,e.data[k])).join('');
+ if(e.kind==='snap'&&e.rows)return tbl(e.system,e.rows);
+ if(e.kind==='audit'&&e.log)return '<table class="ov"><tr><th>When</th><th>System</th><th>What</th></tr>'+e.log.slice(0,100).map(a=>`<tr><td>${esc(fmt(a.t))}</td><td>${esc(a.sys)}</td><td>${esc(a.act)}: ${esc((a.after||a.before||[]).join(' | '))}</td></tr>`).join('')+'</table>';
+ if(e.kind==='entry'&&e.row)return `<b>${esc(e.system)}</b>`+(e.date?' · day '+esc(e.date):'')+tbl(e.system,[e.row]);
+ return '<small>'+esc(e.details||'')+'</small>'}
+const when=e=>{const f=e.stored||e.firstSavedAt||e.createdAt,u=e.updated||e.updatedAt;return 'First stored '+esc(fmt(f))+(u&&u!==f?' · last changed '+esc(fmt(u)):'')};
+const item=(e,tag)=>`<details class="row" style="display:block" data-k="${esc(e.id)}"><summary style="cursor:pointer;display:flex;justify-content:space-between;gap:10px"><span>${esc(e.name)}<small>${esc(e.details)} · ${esc(e.status)}<br>Backup priority: ${esc(priorityLabel(e.priority))} · ${tag?when(e):'Entered '+esc(fmt(e.createdAt))}</small></span><span class="t ${tag?'ok':'bad'}">${tag===2?'✓ Older copy on server':tag?'✓ On server':'⏳ Pending'}</span></summary><div class="tw" style="margin-top:8px">${content(e)}</div></details>`;
+function render(){$('tg').style.display=base()?'none':'';$('tg').textContent=on?'Take server down':'Bring server back';
+ {const n=unsentDays().length;const QN=Q.filter(e=>e.id!=='audit').length;$('qs').textContent=(QN?QN+' entr'+(QN>1?'ies':'y')+' saved on this device, waiting to upload when the server is back':'Nothing waiting. All entries are on the server.')+' · Days on server: '+(Object.keys(HI).length-n)+' of '+Object.keys(HI).length}
+ setH($('ql'),Q.filter(e=>e.id!=='audit').map(e=>item(e,0)).join('')+SV.slice(0,12).map(e=>item(e,Q.some(x=>x.id===e.id)?2:1)).join(''));ov()}
+async function loadSrv(){const u=base();if(!u){$('srv').innerHTML='<p class="msg">Enter the server URL first.</p>';return}
+ try{const r=await fetch(u+'/records',{cache:'no-store'});const a=(await r.json()).sort((x,y)=>String(y.firstSavedAt||y.receivedAt).localeCompare(String(x.firstSavedAt||x.receivedAt)));
+  $('srv').innerHTML=a.length?a.map(e=>item({...e,stored:e.firstSavedAt||e.receivedAt,updated:e.updatedAt},1)).join(''):'<p class="msg">Nothing stored yet.</p>'}catch(x){$('srv').innerHTML='<p class="bad">Server not reachable.</p>'}}
+$('srvb').onclick=loadSrv;
+$('tg').onclick=()=>{on=!on;sync()};
+function markDirty(all,sk,label){const p=4;(all?SYS.map(s=>s[0]):[sk||$('sys').value]).forEach(k=>{Q=Q.filter(e=>e.id!=='snap-'+k);Q.push({id:'snap-'+k,kind:'snap',system:k,rows:clone(D[k]),priority:p,name:k+': '+(label||'all data'),details:(label?'new entry · ':'')+D[k].length+' records',status:label?'entered offline':'full copy',createdAt:first('snap-'+k),at:fmt(first('snap-'+k))})});persist();render();sync()}
+$('sa').onclick=()=>markDirty(true);
+$('url').onchange=()=>{try{localStorage.setItem('lifeline-url',base())}catch(e){}wasUp=false;sync()};
+$('sv').onclick=()=>{const n=$('in1').value.trim();if(!n){$('qs').textContent='Enter a patient name first.';return}
+ Q.push({id:Date.now()+'-'+Math.random().toString(36).slice(2,6),name:n,details:$('in2').value,status:$('in3').value,at:new Date().toLocaleString()});persist();['in1','in2','in3'].forEach(i=>$(i).value='');render();sync()};
+$('es').innerHTML=SYS.map(s=>`<option>${s[0]}</option>`).join('');$('es').value='Patient records';
+function lab(){HD[$('es').value].forEach((h,i)=>$('h'+(i+1)).textContent=h)}$('es').onchange=lab;lab();
+$('sv').onclick=()=>{const k=$('es').value,r=[$('in1').value.trim(),$('in2').value.trim(),$('in3').value.trim()];if(!r[0]){$('qs').textContent='Fill in the first field ('+HD[k][0]+') first.';return}
+ D[k].push(r);try{localStorage.setItem('lifeline-data-v2',JSON.stringify(D))}catch(e){}markDirty(false,k,r[0]);['in1','in2','in3'].forEach(i=>$(i).value='');if($('sys').value===k)draw()};
+function showApp(on){$('login').style.display=on?'none':'';$('app').style.display=on?'':'none'}
+let who=null;try{who=sessionStorage.getItem('lifeline-user')}catch(e){}
+showApp(!!who);
+$('li').onclick=()=>{const u=$('lu').value.trim().toLowerCase(),p=$('lp').value;if(u==='admin'&&p==='Lifeline@123'){who=u;try{sessionStorage.setItem('lifeline-user',u)}catch(e){}$('le').textContent='';$('lp').value='';showApp(true)}else $('le').textContent='Wrong username or password'};
+$('lp').onkeydown=e=>{if(e.key==='Enter')$('li').click()};
+$('lo').onclick=()=>{who=null;try{sessionStorage.removeItem('lifeline-user')}catch(e){}showApp(false)};
+const today=()=>{const n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0')};
+let HI={};try{HI=JSON.parse(localStorage.getItem('lifeline-history'))||{}}catch(e){}
+const hSave=()=>{try{localStorage.setItem('lifeline-history',JSON.stringify(HI))}catch(e){}};
+let SEED={};try{SEED=JSON.parse(localStorage.getItem('lifeline-seed'))||{}}catch(e){}
+const seedSave=()=>{try{localStorage.setItem('lifeline-seed',JSON.stringify(SEED))}catch(e){}};
+if(!Object.keys(HI).length){for(let i=1;i<=6;i++){const d=new Date();d.setDate(d.getDate()-i);const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'),x=clone(EX);x['Pharmacy'].forEach(r=>r[2]=String(+r[2]+i*7));x['Patient records']=x['Patient records'].slice(0,4-(i%2));HI[k]=x;SEED[k]=JSON.stringify(x)}hSave();seedSave()}
+function renderHist(){const ds=Object.keys(HI).sort().reverse(),cd=$('hd').value,cs=$('hs').value;
+ $('hd').innerHTML=ds.map(d=>`<option value="${d}">${d}${d===today()?' (today)':''}</option>`).join('');if(ds.includes(cd))$('hd').value=cd;
+ if(!$('hs').options.length)$('hs').innerHTML=SYS.map(s=>`<option>${s[0]}</option>`).join('');else if(cs)$('hs').value=cs;
+ const d=$('hd').value,k=$('hs').value,rows=(HI[d]&&HI[d][k])||[];
+ $('ht').innerHTML='<tr>'+HD[k].map(h=>`<th>${h}</th>`).join('')+(k==='Radiology images'?'<th>Scan</th>':'')+'</tr>'+(rows.length?rows.map(r=>'<tr>'+r.map(v=>`<td>${esc(v)}</td>`).join('')+(k==='Radiology images'?`<td><button class="b hist-scan" style="margin:0;padding:6px 9px" data-patient="${esc(r[0])}">View scan</button></td>`:'')+'</tr>').join(''):'<tr><td colspan="4" style="color:var(--mu)">No records for this day</td></tr>')}
+$('ht').addEventListener('click',e=>{const b=e.target.closest('.hist-scan');if(!b)return;const d=$('hd').value,k=$('hs').value,r=((HI[d]||{})[k]||[]).find(x=>x[0]===b.dataset.patient);if(r)viewScan(d,k,r)});
+function snapToday(){HI[today()]=clone(D);hSave();renderHist()}
+function queueHist(d){const n=Object.values(HI[d]).reduce((a,x)=>a+x.length,0);Q=Q.filter(e=>e.id!=='hist-'+d);Q.push({id:'hist-'+d,kind:'hist',date:d,data:clone(HI[d]),priority:3,name:'Day '+d,details:n+' records',status:'old day data',createdAt:first('hist-'+d),at:fmt(first('hist-'+d))})}
+const _m=markDirty;markDirty=function(a,b,c){_m(a,b,c);snapToday()};
+$('hd').onchange=$('hs').onchange=renderHist;
+$('hb').onclick=()=>{Object.keys(HI).forEach(queueHist);persist();render();sync()};
+$('ed').value=today();$('ed').max=today();
+let SCAN_ATTACH={};try{SCAN_ATTACH=JSON.parse(localStorage.getItem('lifeline-scan-attachments')||'{}')}catch(e){}
+const scanKey=(d,k,n)=>[d,k,n.trim().toLowerCase()].join('|');
+function viewScan(d,k,r){const id=SCAN_ATTACH[scanKey(d,k,r[0])];const f=FILES.find(x=>String(x.id)===String(id));let url,title;if(f){url=URL.createObjectURL(f.blob instanceof Blob?f.blob:new Blob([f.blob],{type:f.type}));title=f.name}else{const scan=(r[1]||'').toLowerCase();url=scan.includes('ct')?'https://commons.wikimedia.org/wiki/Special:Redirect/file/CT_Scan_General_Illustration.jpg':'https://commons.wikimedia.org/wiki/Special:Redirect/file/Normal_posteroanterior_(PA)_chest_radiograph_(X-ray).jpg';title='Sample scan image (demo only)'}
+ const w=window.open('','_blank');if(!w){alert('Allow pop-ups to view the scan.');return}w.document.write('<!doctype html><html><head><title>'+title.replace(/[<>]/g,'')+'</title><style>body{font:16px Arial;background:#101827;color:white;padding:20px;text-align:center}img,iframe{max-width:95%;max-height:78vh;border-radius:8px}a{color:#8be4d0}p{color:#d1d5db}</style></head><body><h2>'+title.replace(/[<>]/g,'')+'</h2><p>'+(f?'Attached to this entry.':'Illustration from Wikimedia Commons. Demo image only — not the patient scan.')+'</p>'+(f&&f.type==='application/pdf'?'<iframe src="'+url+'" width="900" height="650"></iframe>':'<img src="'+url+'" alt="Scan image">')+'<p id="err" style="display:none">The online sample image could not load. Check your internet connection.</p><p><button onclick="window.print()">Print</button> <a href="'+url+'" download="'+title.replace(/[<>]/g,'')+'">Download</a></p></body></html>');w.document.close()}
+$('sv').onclick=async()=>{const k=$('es').value,r=[$('in1').value.trim(),$('in2').value.trim(),$('in3').value.trim()],d=$('ed').value||today();
+ if(!r[0]){$('qs').textContent='Fill in the first field ('+HD[k][0]+') first.';return}
+ if(d>today()){$('qs').textContent='Choose today or an earlier date.';return}
+ const picked=$('entryFile').files[0];if(picked){try{if(!fileDB)await openFileDB();const fid=await dbPut({name:picked.name,type:picked.type||'application/octet-stream',size:picked.size,blob:picked,addedAt:new Date().toISOString()});SCAN_ATTACH[scanKey(d,k,r[0])]=fid;localStorage.setItem('lifeline-scan-attachments',JSON.stringify(SCAN_ATTACH));FILES=await dbAll();renderFiles()}catch(err){alert('The entry can still be saved, but its attachment could not be stored. Check available device storage.')}}
+ {const id='entry-'+Date.now()+'-'+Math.random().toString(36).slice(2,6);Q.push({id,kind:'entry',system:k,date:d,row:r,priority:+$('priority').value||3,name:r[0],details:r[1],status:r[2],createdAt:first(id),at:fmt(first(id))})}
+ if(d===today()){D[k].push(r);born(k);try{localStorage.setItem('lifeline-data-v2',JSON.stringify(D))}catch(e){}markDirty(false,k,r[0]);if($('sys').value===k)draw()}
+ else{logPast(d,k,r);HI[d]=HI[d]||{};(HI[d][k]=HI[d][k]||[]).push(r);hSave();queueHist(d);persist();render();sync();renderHist()}
+ ['in1','in2','in3'].forEach(i=>$(i).value='');$('entryFile').value='';$('ed').value=today()};
+/* ---------- Overview and change history ---------- */
+let RID={},META={},AUD=[];
+try{({RID,META,AUD}=Object.assign({RID:{},META:{},AUD:[]},JSON.parse(localStorage.getItem('lifeline-meta'))))}catch(e){}
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6),nowI=()=>new Date().toISOString();
+function metaSave(){try{localStorage.setItem('lifeline-meta',JSON.stringify({RID,META,AUD}))}catch(e){}
+ Q=Q.filter(e=>e.id!=='audit');Q.push({id:'audit',kind:'audit',log:AUD.slice(0,300),priority:4,name:'Change log',details:AUD.length+' changes',status:'audit',createdAt:first('audit'),at:fmt(first('audit'))});persist()}
+function ensureMeta(){SYS.forEach(([k])=>{RID[k]=RID[k]||[];while(RID[k].length<D[k].length){const i=RID[k].length,id=uid();RID[k].push(id);META[id]={sys:k,created:first('init'),updated:first('init'),row:D[k][i].slice(),ex:1}}RID[k].length=D[k].length})}
+function logEv(id,k,act,row,before){const t=nowI();AUD.unshift({t,id,sys:k,act,name:row[0]||(before||[])[0]||'',before:before||null,after:act==='deleted'?null:row.slice()});AUD.length=Math.min(AUD.length,500);return t}
+function born(k){ensureMeta();const i=D[k].length-1,id=RID[k][i],t=logEv(id,k,'added',D[k][i]);META[id]={sys:k,created:t,updated:t,row:D[k][i].slice()};metaSave()}
+function touch(k,i){ensureMeta();const id=RID[k][i],m=META[id];if(!m)return;const row=D[k][i].slice(),last=AUD.find(a=>a.id===id);
+ if(last&&last.act==='edited'&&Date.now()-new Date(last.t)<60000){last.after=row;last.t=m.updated=nowI();last.name=row[0]}
+ else{m.updated=logEv(id,k,'edited',row,m.row)}m.row=row;metaSave()}
+function gone(k,i){ensureMeta();const id=RID[k][i];if(!id)return;logEv(id,k,'deleted',D[k][i],D[k][i].slice());RID[k].splice(i,1);delete META[id];metaSave()}
+function logPast(d,k,r){const t=logEv(uid(),k,'added to day '+d,r);first('hist-'+d);metaSave()}
+function resetMeta(){AUD.unshift({t:nowI(),id:'-',sys:'All',act:'reset to examples',name:'',before:null,after:null});RID={};META={};ensureMeta();metaSave()}
+const isP=k=>HD[k][0]==='Patient name',cell=v=>esc(v==null||v===''?'—':v);
+const recs=()=>{ensureMeta();const a=[];SYS.forEach(([k])=>D[k].forEach((r,i)=>{const m=META[RID[k][i]]||{};a.push({k,r,id:RID[k][i],m})}));return a};
+const trw=x=>`<tr><td>${esc(x.k)}</td><td>${cell(x.r[0])}</td><td>${cell(x.r[1])}</td><td>${cell(x.r[2])}</td><td>${esc(fmt(x.m.created))}${x.m.ex?' <span class="tag">example</span>':''}</td><td>${esc(fmt(x.m.updated))}</td></tr>`;
+const head='<tr><th>System</th><th>Name</th><th>Details</th><th>Status</th><th>First stored</th><th>Last altered</th></tr>';
+const logRow=a=>`<tr><td>${esc(fmt(a.t))}</td><td>${esc(a.sys)}</td><td>${esc(a.act)}</td><td>${cell(a.name)}</td><td>${a.before?esc(a.before.join(' | ')):'—'}</td><td>${a.after?esc(a.after.join(' | ')):'—'}</td></tr>`;
+const logHead='<tr><th>When</th><th>System</th><th>Action</th><th>Name</th><th>Before</th><th>After</th></tr>';
+function ov(){const q=$('ovq').value.trim().toLowerCase(),mode=$('ovm').value,all=recs(),hit=x=>!q||x.r.join(' ').toLowerCase().includes(q)||x.k.toLowerCase().includes(q);
+ const pats=new Set(all.filter(x=>isP(x.k)&&x.r[0]).map(x=>x.r[0].trim().toLowerCase())),td=today(),chg=AUD.filter(a=>new Date(a.t).toDateString()===new Date().toDateString()).length;
+ setH($('ovk'),`<div><b>${pats.size}</b><small>patients</small></div><div><b>${all.length}</b><small>records in ${SYS.length} systems</small></div><div><b>${chg}</b><small>changes today</small></div><div><b>${Object.keys(HI).length}</b><small>days kept</small></div><div><b>${Q.filter(e=>e.id!=='audit').length}</b><small>waiting to upload</small></div>`);
+ let h='';
+ if(mode==='p'){const g={};all.filter(x=>isP(x.k)&&x.r[0]).forEach(x=>(g[x.r[0].trim().toLowerCase()]=g[x.r[0].trim().toLowerCase()]||[]).push(x));
+  const names=Object.keys(g).filter(n=>g[n].some(hit)).sort();
+  h=names.map(n=>{const L=g[n],pr=L.find(x=>x.k==='Patient records')||L[0],ch=AUD.filter(a=>(a.name||'').trim().toLowerCase()===n);
+   return `<details class="pg" data-k="p-${esc(n)}"><summary><b>${esc(pr.r[0])}</b> · ${cell(pr.r[1])} · <b>${cell(pr.r[2])}</b> <span class="tag">${L.length} system${L.length>1?'s':''}</span> <span class="tag">${ch.length} change${ch.length==1?'':'s'}</span></summary><div class="tw ov"><table>${head}${L.map(trw).join('')}</table>${ch.length?'<p class="msg" style="margin:8px 0 2px"><b>Changes</b></p><table>'+logHead+ch.map(logRow).join('')+'</table>':''}</div></details>`}).join('')||'<p class="msg">No patients match.</p>';
+  const o=all.filter(x=>!isP(x.k)&&hit(x));if(o.length)h+=`<details class="pg" data-k="oth"><summary><b>Stock, files and other items</b> <span class="tag">${o.length}</span></summary><div class="tw ov"><table>${head}${o.map(trw).join('')}</table></div></details>`}
+ else if(mode==='r'){const o=all.filter(hit);h=`<div class="tw ov"><table>${head}${o.map(trw).join('')}</table></div>`+(o.length?'':'<p class="msg">Nothing matches.</p>')}
+ else if(mode==='l'){const o=AUD.filter(a=>!q||(a.name+' '+a.sys+' '+a.act).toLowerCase().includes(q));h=`<div class="tw ov"><table>${logHead}${o.slice(0,200).map(logRow).join('')}</table></div>`+(o.length?'':'<p class="msg">No changes recorded yet. Adds, edits and deletes appear here with their date and time.</p>')}
+ else{const ds=Object.keys(HI).sort().reverse();h='<div class="tw ov"><table><tr><th>Day</th><th>First stored</th><th>Last changed on server</th><th>Records</th></tr>'+ds.map(d=>{const sv=SV.find(e=>e.id==='hist-'+d);return `<tr><td>${d}${d===td?' (today)':''}</td><td>${esc(fmt(FT['hist-'+d])||'—')}</td><td>${esc(sv&&sv.updated?fmt(sv.updated):'—')}</td><td>${Object.values(HI[d]).reduce((a,x)=>a+x.length,0)}</td></tr>`}).join('')+'</table></div>'}
+ setH($('ovb'),h)}
+$('ovq').oninput=$('ovm').onchange=ov;
+// Local file library: IndexedDB stores large files; download keeps the original file and size.
+const FILEKEY='lifeline-file-library-v2', LEGACY_FILEKEY='lifeline-file-library-v1';let FILES=[];let fileDB;
+const openFileDB=()=>new Promise((resolve,reject)=>{const req=indexedDB.open('lifeline-file-store',1);req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('files'))req.result.createObjectStore('files',{keyPath:'id',autoIncrement:true})};req.onsuccess=()=>{fileDB=req.result;resolve(fileDB)};req.onerror=()=>reject(req.error)});
+const dbAll=()=>new Promise((resolve,reject)=>{const r=fileDB.transaction('files','readonly').objectStore('files').getAll();r.onsuccess=()=>resolve(r.result||[]);r.onerror=()=>reject(r.error)});
+const dbPut=f=>new Promise((resolve,reject)=>{const r=fileDB.transaction('files','readwrite').objectStore('files').add(f);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});
+const dbDelete=id=>new Promise((resolve,reject)=>{const r=fileDB.transaction('files','readwrite').objectStore('files').delete(id);r.onsuccess=()=>resolve();r.onerror=()=>reject(r.error)});
+const fileSize=n=>n<1024?n+' B':n<1048576?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(1)+' MB';
+function renderFiles(){const el=$('fileList');if(!FILES.length){el.innerHTML='<p class="msg">No files added yet.</p>';return}el.innerHTML=FILES.map((f,i)=>`<div class="row" style="flex-wrap:wrap"><div style="min-width:0;flex:1"><b>${esc(f.name)}</b><small>${esc(f.type||'File')} · ${fileSize(f.size)} · Saved on this device</small></div><div style="display:flex;gap:5px;flex-wrap:wrap"><button class="b" style="margin:0" data-file-download="${i}">Download (${fileSize(f.size)})</button><button class="b" style="margin:0" data-file-print="${i}">Print</button><button class="b" style="margin:0;background:transparent;color:var(--bad);border-color:var(--bad)" data-file-delete="${i}">Delete</button></div></div>`).join('')}
+(async()=>{try{await openFileDB();let old=[];try{old=JSON.parse(localStorage.getItem(LEGACY_FILEKEY))||[]}catch(e){}const current=await dbAll();if(!current.length&&old.length){for(const f of old){try{const blob=await (await fetch(f.data)).blob();await dbPut({name:f.name,type:f.type||blob.type,size:blob.size,blob,addedAt:f.addedAt||new Date().toISOString()})}catch(e){}}localStorage.removeItem(LEGACY_FILEKEY)}FILES=await dbAll();renderFiles()}catch(e){$('fileList').innerHTML='<p class="msg">Browser file storage is unavailable. Please use a current browser and enable site storage.</p>'}})();
+$('filePick').addEventListener('change',async e=>{const chosen=[...e.target.files];try{if(!fileDB)await openFileDB();for(const f of chosen){await dbPut({name:f.name,type:f.type||'application/octet-stream',size:f.size,blob:f,addedAt:new Date().toISOString()})}FILES=await dbAll();renderFiles()}catch(err){alert('Could not save one or more files. The browser or device may be out of storage space. Try a smaller file or free some space.');try{FILES=await dbAll();renderFiles()}catch(e2){}}e.target.value=''});
+$('fileList').addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;const i=Number(b.dataset.fileDownload??b.dataset.filePrint??b.dataset.fileDelete);const f=FILES[i];if(!f)return;if(b.dataset.fileDelete!==undefined){if(confirm('Delete '+f.name+' from this device?')){await dbDelete(f.id);FILES=await dbAll();renderFiles()}return}const blob=f.blob instanceof Blob?f.blob:new Blob([f.blob],{type:f.type});const url=URL.createObjectURL(blob);if(b.dataset.fileDownload!==undefined){const a=document.createElement('a');a.href=url;a.download=f.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);return}if(b.dataset.filePrint!==undefined){if((f.type||'').startsWith('image/')){const w=window.open('','_blank');if(!w){URL.revokeObjectURL(url);alert('Allow pop-ups to print this file.');return}w.document.write('<html><head><title>Print file</title><style>body{margin:0;text-align:center}img{max-width:100%;max-height:95vh}</style></head><body><img src="'+url+'" onload="window.print()"></body></html>');w.document.close();setTimeout(()=>URL.revokeObjectURL(url),60000)}else if(f.type==='application/pdf'){const w=window.open(url,'_blank');if(!w)alert('Allow pop-ups to print this PDF. Use the PDF viewer print button.');setTimeout(()=>URL.revokeObjectURL(url),60000)}else{URL.revokeObjectURL(url);alert('This file type cannot be previewed for printing in the browser. Download it and print it from a compatible app.')}}});
+
+
+// Patient billing and downloadable patient-wide report (demo/local browser storage).
+const BILLKEY='lifeline-patient-bills-v1';let BILLDB={};try{BILLDB=JSON.parse(localStorage.getItem(BILLKEY))||{}}catch(e){}
+const money=n=>'₹'+(Number(n)||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const patientNames=()=>{const names=[];SYS.forEach(([k])=>(D[k]||[]).forEach(r=>{const n=String(r[0]||'').trim();if(n&&!names.some(x=>x.toLowerCase()===n.toLowerCase()))names.push(n)}));Object.keys(BILLDB).forEach(k=>{if(k&&!names.some(x=>x.toLowerCase()===k.toLowerCase()))names.push(k)});return names.sort((a,b)=>a.localeCompare(b))};
+function resolvePatient(input){const q=String(input||'').trim().toLowerCase();if(!q)return {name:'',matches:[]};const names=patientNames(),exact=names.find(n=>n.toLowerCase()===q);if(exact)return {name:exact,matches:[exact]};const matches=names.filter(n=>n.toLowerCase().includes(q));return {name:matches.length===1?matches[0]:'',matches};}
+const billKey=()=>{const r=resolvePatient($('billPatient').value);return (r.name||$('billPatient').value.trim()).toLowerCase()};
+const billSave=()=>{try{localStorage.setItem(BILLKEY,JSON.stringify(BILLDB))}catch(e){$('billMsg').textContent='Could not save billing data. Browser storage may be full.'}};
+function billRender(){const key=billKey(),b=BILLDB[key]||{items:[],paid:0};const paid=Number(b.paid)||0; if(document.activeElement!==$('billPaid'))$('billPaid').value=paid;const total=b.items.reduce((a,x)=>a+(Number(x.amount)||0),0),bal=total-paid;$('billRows').innerHTML=b.items.length?'<table><tr><th>Charge</th><th>Amount</th><th></th></tr>'+b.items.map((x,i)=>`<tr><td>${esc(x.desc)}</td><td>${money(x.amount)}</td><td><button class="b billRemove" data-i="${i}" style="margin:0;padding:5px 8px">Remove</button></td></tr>`).join('')+'</table>':'<p class="msg">No bill items yet.</p>';$('billTotals').innerHTML=`<div><small>Final bill (total charges)</small><b>${money(total)}</b></div><div><small>Paid</small><b>${money(paid)}</b></div><div><small>${bal<0?'Credit / overpayment':'Balance due'}</small><b>${money(Math.abs(bal))}${bal<0?' credit':''}</b></div>`;}
+function patientData(){const typed=$('billPatient').value.trim();if(!typed)return {error:'Type a patient name first.'};const resolved=resolvePatient(typed);if(resolved.matches.length>1&&!resolved.name)return {error:'More than one patient matches. Choose the full name from the suggestions: '+resolved.matches.join(', ')};const name=resolved.name||typed;const rows=[];SYS.forEach(([k])=>(D[k]||[]).forEach(r=>{if(String(r[0]||'').trim().toLowerCase()===name.toLowerCase())rows.push({system:k,fields:HD[k].map((h,i)=>({field:h,value:r[i]??''}))})}));const key=name.toLowerCase(),b=BILLDB[key]||{items:[],paid:0},total=b.items.reduce((a,x)=>a+(Number(x.amount)||0),0);return {patient:name,generatedAt:new Date().toISOString(),records:rows,billing:{items:b.items,finalBill:total,paid:Number(b.paid)||0,balance:total-(Number(b.paid)||0)},note:'Demo report generated from data stored in this browser; verify against the official hospital record.'}}
+function downloadText(filename,text,type='text/plain;charset=utf-8'){const blob=new Blob([text],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename.replace(/[^a-z0-9._-]+/gi,'_');document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000)}
+function updatePatientSuggestions(){const r=resolvePatient($('billPatient').value);$('patientNameOptions').innerHTML=r.matches.map(n=>`<option value="${esc(n)}"></option>`).join('');$('patientMatches').textContent=!$('billPatient').value.trim()?'Type a patient name to find matching records.':r.matches.length===0?'No existing patient name found. You can still create billing for this name.':r.name?'Matched patient: '+r.name:r.matches.length+' matches — choose the full patient name: '+r.matches.join(', ');billRender()}
+$('billAdd').onclick=()=>{const typed=$('billPatient').value.trim(),desc=$('billDesc').value.trim(),amount=Number($('billAmt').value);const r=resolvePatient(typed);if(!typed||!desc||$('billAmt').value===''||!Number.isFinite(amount)||amount<=0){$('billMsg').textContent='Enter patient name, description and an amount greater than ₹0.';return}if(r.matches.length>1&&!r.name){$('billMsg').textContent='Choose the full patient name from the suggestions before adding a bill item.';return}const key=(r.name||typed).toLowerCase();BILLDB[key]=BILLDB[key]||{items:[],paid:0};BILLDB[key].items.push({desc,amount:amount,at:new Date().toISOString()});billSave();$('billDesc').value='';$('billAmt').value='';$('billMsg').textContent='Bill item added and totals recalculated.';billRender()};
+$('billPaid').addEventListener('input',()=>{const k=billKey(),b=BILLDB[k]||{items:[],paid:0},total=b.items.reduce((a,x)=>a+Math.max(0,Number(x.amount)||0),0),v=$('billPaid').value===''?0:Number($('billPaid').value);if(Number.isFinite(v)&&v>=0){const bal=total-v;$('billTotals').innerHTML=`<div><small>Final bill (total charges)</small><b>${money(total)}</b></div><div><small>Paid (not yet saved)</small><b>${money(v)}</b></div><div><small>${bal<0?'Credit / overpayment':'Balance due'}</small><b>${money(Math.abs(bal))}${bal<0?' credit':''}</b></div>`}});
+$('billPaid').onchange=()=>{const typed=$('billPatient').value.trim(),r=resolvePatient(typed);if(!typed){$('billMsg').textContent='Type patient name first.';return}if(r.matches.length>1&&!r.name){$('billMsg').textContent='Choose the full patient name first.';return}const k=(r.name||typed).toLowerCase(),paid=Number($('billPaid').value);if($('billPaid').value===''||!Number.isFinite(paid)||paid<0){$('billMsg').textContent='Payment must be zero or a positive amount.';billRender();return}BILLDB[k]=BILLDB[k]||{items:[],paid:0};BILLDB[k].paid=paid;billSave();billRender();$('billMsg').textContent='Payment saved and balance recalculated.'};
+$('billRefresh').onclick=()=>{if(!$('billPatient').value.trim()){$('billMsg').textContent='Type patient name first.';return}updatePatientSuggestions();$('billMsg').textContent='Patient records and saved billing loaded.'};
+$('billRows').addEventListener('click',e=>{const b=e.target.closest('.billRemove');if(!b)return;const k=billKey();if(BILLDB[k]){BILLDB[k].items.splice(Number(b.dataset.i),1);billSave();billRender()}});
+$('billFinal').onclick=()=>{const d=patientData();if(d.error){$('billMsg').textContent=d.error;return}const lines=['FINAL BILL',`Patient: ${d.patient}`,`Generated: ${d.generatedAt}`,'',...d.billing.items.map(x=>`${x.desc}: ${money(x.amount)}`),'',`Final bill: ${money(d.billing.finalBill)}`,`Paid: ${money(d.billing.paid)}`,`${d.billing.balance<0?'Credit / overpayment':'Balance due'}: ${money(Math.abs(d.billing.balance))}`,'',d.note];downloadText(`${d.patient}-final-bill.txt`,lines.join('\n'));};
+$('patientDownload').onclick=()=>{const d=patientData();if(d.error){$('billMsg').textContent=d.error;return}downloadText(`${d.patient}-complete-patient-report.json`,JSON.stringify(d,null,2),'application/json;charset=utf-8');$('billMsg').textContent=`Downloaded report for ${d.patient}. ${d.records.length} matching record group(s) included.`};
+$('patientPrint').onclick=()=>{const d=patientData();if(!d){$('billMsg').textContent='Enter patient name first.';return}const w=window.open('','_blank');if(!w){$('billMsg').textContent='Allow pop-ups to print.';return}const escHtml=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));w.document.write('<!doctype html><html><head><title>Patient report</title><style>body{font:14px Arial;margin:28px;color:#111}h1,h2{margin-bottom:8px}table{border-collapse:collapse;width:100%;margin:12px 0}td,th{border:1px solid #aaa;padding:7px;text-align:left}small{color:#555}</style></head><body><h1>Patient report & final bill</h1><p><b>Patient:</b> '+escHtml(d.patient)+'</p><p><b>Generated:</b> '+escHtml(d.generatedAt)+'</p><h2>Patient records</h2><table><tr><th>System</th><th>Information</th></tr>'+d.records.map(r=>'<tr><td>'+escHtml(r.system)+'</td><td>'+r.fields.map(f=>'<b>'+escHtml(f.field)+':</b> '+escHtml(f.value)).join('<br>')+'</td></tr>').join('')+'</table><h2>Billing</h2><table><tr><th>Description</th><th>Amount</th></tr>'+d.billing.items.map(x=>'<tr><td>'+escHtml(x.desc)+'</td><td>'+escHtml(money(x.amount))+'</td></tr>').join('')+'<tr><th>Final bill</th><th>'+money(d.billing.finalBill)+'</th></tr><tr><td>Paid</td><td>'+money(d.billing.paid)+'</td></tr><tr><th>Balance due</th><th>'+money(d.billing.balance)+'</th></tr></table><p><small>'+escHtml(d.note)+'</small></p><button onclick="window.print()">Print</button></body></html>');w.document.close()};
+$('billPatient').addEventListener('input',updatePatientSuggestions);$('billPatient').addEventListener('change',updatePatientSuggestions);billRender();updatePatientSuggestions();
+
+ensureMeta();metaSave();ov();
+snapToday();
+setInterval(sync,5000);window.addEventListener('online',sync);sync();
+
+</script></body></html>
